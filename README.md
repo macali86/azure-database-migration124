@@ -43,3 +43,157 @@ Once the production environment has been created and configured our next step is
 - Click OK to perform restoration.
 
 At the end of this Milestone I had a complete Production environment setup, with the Production Database in a VM. 
+
+#### Milestone 2
+
+The aim of this milestone is to transition our database to Azure's cloud ecosystem by migrating the on-premises database to Azure SQL Database. We will go through the step-bystep process that was involved in completing this.
+
+### Create Azure SQL Database
+
+Firstly, we begin by creating a Azure SQL Database, this is done through the Azure Portal, after logging on we do the following;
+
+- Select SQL Databases and click the + Create tab,
+- Create a database name and select create new for the server,
+- We now give the server a unique name and set location to the nearest to us which is UK South,
+- For Authentication method we have selected Use SQL authentication and the create a Server admin login and password,
+- For the compute and storage section click the Configure database option and in the Service tier section select Basic as we don't need much storage,
+- We left the rest as their default settings and then press review + create,
+- Once deployed we select Go to resource to see the overview page.
+
+### Connect Server via VSCode
+
+The next step is to connect to our Sever via VSCode, to do this we go into the extensions tab in VSCode and search for SQL Server, then install the extension, the next steps are as follow;
+
+- Click on the server window on the left hand side and select Add Connection,
+- Go back to the Azure portal and the SQL Database overview page and copy the Server name,
+- Paste this into the VSCode dialog box that opens when you selected Add connection, 
+- Choose a database name if you wish, when prompted for Authentication type we select SQL Login,
+- Enter the username and password we created when creating our SQL Database in Azure, and enter a display name.
+
+After completing these steps we actually encounter an error message, this is because public access in disabled to our database, this is done by default by Azure, we also encounter an error due to firewall rules, here we will go through the steps to resolve these issues;
+
+- Navigate to Azure SQL Database, in this case it is azure-project-db and select the set server option near the top of the overview page,
+- check the selected netork option in the Public netowrk access section, and select save at the bottom.
+- Now we back to VSCode and repeat the login process from before, we will be met with another error where we have to add our Azure account, we select Add account and add the account,
+- We have to repeat the logging on process again and are met with another message, click on the Create Firewall Rule, this will allow traffic from our Client IP address,
+- When we click Create Firewall Rule, we see the pop up in VSCode that contains out IP address in the Start IP, we press enter and the the End IP address which is the same we also press enter.
+
+After this we do the logging process again, though it didn't login the first time, waiting a few minutes, refreshing Azure helps, as it gives the systems time to update.
+
+## Database Migration
+
+### Download & Configure Azure Data Studio
+
+Now, we have to prepare the Migration of the database, we start this process by downloading Azure Data Studio onto our VM, it is usually downloaded automatically when you download SQL Server Management Studio, if not you can download it here https://azure.microsoft.com/en-gb/products/data-studio. Once the installation process is complete we have to configure it by completing the followig steps to connect to a Local SQL Server Database;
+
+- CLick on the server icon in the Activity Bar and select New Connection,
+- Select Microsoft SQL Server as the server type,
+- In the server name type localhost and and do the required authentication,
+- When we try to select our database we are met with a Authentication Error, we have to click on the Enable Trust seerver certificate,
+Then when we click connect we will have established a connection and we can see our local database in Data Studio.
+
+Now we have to connect to our Azure SQL Database, the initial steps are the same but after seleting New Connection we input some diffferent information;
+
+- In the connection Dialog select Microsoft SQL Server,
+- Put in the server name, we can get this from our Azure SQL Server overview page on the portal,
+- Select the appropriate Authentication Type (SQL Authenticaation) and input our Server username and password,
+- Now we can see the server we want, select it and we will be met with a error box, this indicates VM cannot access the server because the machine has not been added to the SQL Server Firewall,
+- Go to the VM overview page and copy the IP address,
+- Go to the Azure Server overview page and in the side-panel we access the Networking section,
+- Select add firewall rule, give the rule a unique name and paste the IP address in the start IP and End IP and click save,
+-  No we go back to Azure Data Studio and we can establish connection.
+
+## Migrate from local server to Azure Server
+
+### Schema Compare
+
+Now we should have 2 servers show in the side panel, one is connected to the localhost and the other to our Azure Server, Now we have to Migrate our database that is on the localhost to our Azure Server. 
+
+First we install the SQL Server Schema Compare extension in Azure Data Studio and complete the following steps;
+
+- Right-click on our local SQL server and select Schema compare,
+- In the dialog box click the ... button, here we make sure that the Source corresponds to our loacl databse and Target corresponds to our Azure SQL Database, and click OK,
+- We click Compare and select all the schema changes we want to apply, and click Apply.
+
+### Data Migration
+
+SQL Schema Compare allows the synchronization of the structure of the database, this includes tables, views, procedures and other objects, note we have not migrated the data that is contained yet, to do that we have to carry out the following tasks;
+
+- Add the Azure SQL Migration extension,
+- Right-click on the conected Azure SQL Server and select Manage,
+- Click on the Migrate to Azure SQL button,
+- From here the setup wizard is opened and we have to follow the steps,
+- step 5 includes creating a Azure Database Migration Service, we do this by navigating to the Azure portal and searching for Database Migration Service,
+- In the Homepage we select create to create a new service and leave the configurations as default, also select the same VM to which our database has been provisioned and UK South as our location and the click create,
+- Now, we go back to our Azure Data Studio and select the Migration Service, we are met with a message that the service is not registered,
+- We have to download and install the itegration runtime, the link is in the error meaasge,
+- Once download is complete we run and copy and paste any one of the 2 Authentication keys into the integration runtime and select register, after a few minutes when we go back to Azure Data Studio everything will have updated and we can continue,
+- For the next step, we provide the password we created for the local SQL Server, and select all the tables we want to migrate, in this case all of them,
+- We click update and then the Run Validation button, once this is complete we can select Start migration to begin the process.
+
+Once completed all the tables, along with the schema had been migrated to the VM.
+
+#### Milestone 3 - Data Backup & Restore
+
+The aim od this Milestone is to ensure that the data stored in our production database is securely storedon Azure and also creating a developer environment for the database. The production database is for storing real customer data whereas a developer databse is used for testing and experimenting, it gives developer the opportunity to test and alter the data without affecting the integrity of the live data.
+
+### Create a full backup of production database
+
+The first task is to create a full backup of the production database, to do this we have to go onto SQL Server Management Studio (SSMS), connect to our SQL Server instance and complete the following step;
+
+- Right-click our database (AdventureWorks2022), and select Tasks>backup,
+- In the dialog box choose a destination for the backup (C:\Program Files\Microsoft SQL Server\MSSQL16.MSSQLSERVER\MSSQL\Backup\),
+- We then selected a full backup,
+- Click OK to initiate backup.
+
+Now we have we have backed up the file locally we can create a Blob storage backup on Azure, this means that is anything happens to our local machine we still have a offline backup, to do this we complete the following steps;
+
+- Log into our Azure account,
+- Create a storage account (I used the same resource group as this project),
+- Created a container called aicoreprojectbackup,
+- Whilst in the container clicked the upload button,
+- Navigated to where the file is stores locally, in this case C:\Program Files\Microsoft SQL Server\MSSQL16.MSSQLSERVER\MSSQL\Backup\,
+- drag and dropped the file into the upload section and clicked the blue upload button.
+
+Now we have a local and cloud stored backup of AdvetureWorld2022.
+
+### Create A Developer Environment
+
+To create a developer environment we firstly repeat the steps of provisioning a VM and downloading the necessary programs, this includes SQL Server Developer and SQL Server Management Studio.
+
+Once this has been done we have to restore our database in the Developer Environment.
+
+- In our VM we navigate to our blob sotrage backup in Azure and download it,
+- We move the file from our Download folder and into the backup folder of the SQL Server (C:\Program Files\Microsoft SQL Server\MSSQL16.MSSQLSERVER\MSSQL\Backup\),
+- Open SSMS, right-click on Databases and select Restore database,
+- In the dialog box select Device and click the ... button,
+- Click the Add button and find the AdventureWorld2022 file in the relevant folder,
+- Click OK to restore the database.
+
+### Periodic Backups
+
+We can now schedule a automatic backup, this means that SSMS will autonatically back up the database and upload the backup to the Azure blob storage. We do this in SSMS by doing the following;
+
+- Right-click on SQL Server Agent node and then click Start,
+- Select Yes when asked if we want to start the Agent,
+
+We need to create a SQL Server Credential, we do this by right-cicking on Databases and running a query, the query will look like this;
+
+CREATE CREDENTIAL [YourCredentialName]
+WITH IDENTITY = '[Your Azure Storage Account Name]',
+SECRET = 'Access Key';
+
+We replace [YourCredentialName] with a unique name and can find our Storage Account Name and Access Key by navigating to storage account in Azure and clicking the Access key tab in the left side panel. Once we have completed and run this in SSMS we can check if it has succeeded by checking Security node > Credentials, with the name you provisioned the Credential with.
+
+Now we can continue with the Backup plan (Maintenance Plan).
+
+- In the Object Explorer, expand the Management node, right-click on Maintenance Plans, and select Maintenance Plan Wizard,
+- We select full backup in the dialog box, and click next and select our database,
+- We choose URL as our destination,
+- In the Destination tab you will first have to select the SQL Server Credentials from a drop-down list. Here you should select the credentials you have provisioned before, that will allow you access to the Azure Storage Account.
+- In the Azure Storage Container section, I put the Azure storage I previously created,
+- We leave the rest as default and then click Finish to create the plan.
+
+After refreshing the Object Explorer we can see our maintenance plan under Maintenance Plans, we right-click and select execute to run the plan. Once it has executed we can see it in the design window, here we can click on the calendar button and set a weekly automated schedule to back up.
+
+Finally, we go into our Azure storage container and we can see that a backup has been uploaded, we now have 2 files in our container.
