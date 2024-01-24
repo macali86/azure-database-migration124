@@ -1,4 +1,4 @@
-# Azure Data Migration - AICore Project
+# Azure Data Migration Project
 
 The aim of this project is to architect and implement a cloud-based database system on Microsoft Azure, it is to showcase the skills and hand-on expertise that has been learnt over the Azure section of the AI Core course.
 
@@ -8,7 +8,7 @@ Secondly, we will simulate a disaster recovery scenario with potential for data 
 
 Finally, we integrate Microsoft Entra ID and assign specific access roles to enhance security and add another layer of control and protection.
 
-#### Milestone 1
+## Create Production Environment
 
 To start, we have set up the production environment, this includes provisioning a Virtual Machine in Azure and then installing SQL Server and SQL Server Management Studio onto the Virtual Machine (VM).
 
@@ -29,7 +29,7 @@ Next, we have to connect to the VM, to do this once the VM has been craeted we c
 
 Finally, once on the VM we download SQL Server Developer from here https://www.microsoft.com/en-gb/sql-server/sql-server-downloads, and somplete the installation process, once this has been completed we can download SQL Server Management Studio from here, https://learn.microsoft.com/en-us/sql/ssms/download-sql-server-management-studio-ssms?view=sql-server-ver16. These tools are essential in creating production environment because they mirror the capabilities of a corporate database server.
 
-## Create Production Database
+#### Create Production Database
 
 Once the production environment has been created and configured our next step is to create a production database, we had to do this by restoring a bacup file known as AdventureWorks, Here we will go through the step by step process.
 
@@ -44,11 +44,11 @@ Once the production environment has been created and configured our next step is
 
 At the end of this Milestone I had a complete Production environment setup, with the Production Database in a VM. 
 
-#### Milestone 2
+## Cloud Migration
 
-The aim of this milestone is to transition our database to Azure's cloud ecosystem by migrating the on-premises database to Azure SQL Database. We will go through the step-bystep process that was involved in completing this.
+Now we have to transition our database to Azure's cloud ecosystem by migrating the on-premises database to Azure SQL Database. We will go through the step-bystep process that was involved in completing this.
 
-### Create Azure SQL Database
+#### Create Azure SQL Database
 
 Firstly, we begin by creating a Azure SQL Database, this is done through the Azure Portal, after logging on we do the following;
 
@@ -60,7 +60,7 @@ Firstly, we begin by creating a Azure SQL Database, this is done through the Azu
 - We left the rest as their default settings and then press review + create,
 - Once deployed we select Go to resource to see the overview page.
 
-### Connect Server via VSCode
+#### Connect Server via VSCode
 
 The next step is to connect to our Sever via VSCode, to do this we go into the extensions tab in VSCode and search for SQL Server, then install the extension, the next steps are as follow;
 
@@ -80,9 +80,9 @@ After completing these steps we actually encounter an error message, this is bec
 
 After this we do the logging process again, though it didn't login the first time, waiting a few minutes, refreshing Azure helps, as it gives the systems time to update.
 
-## Database Migration
+### Database Migration
 
-### Download & Configure Azure Data Studio
+#### Download & Configure Azure Data Studio
 
 Now, we have to prepare the Migration of the database, we start this process by downloading Azure Data Studio onto our VM, it is usually downloaded automatically when you download SQL Server Management Studio, if not you can download it here https://azure.microsoft.com/en-gb/products/data-studio. Once the installation process is complete we have to configure it by completing the followig steps to connect to a Local SQL Server Database;
 
@@ -103,9 +103,9 @@ Now we have to connect to our Azure SQL Database, the initial steps are the same
 - Select add firewall rule, give the rule a unique name and paste the IP address in the start IP and End IP and click save,
 -  No we go back to Azure Data Studio and we can establish connection.
 
-## Migrate from local server to Azure Server
+### Migrate from local server to Azure Server
 
-### Schema Compare
+#### Schema Compare
 
 Now we should have 2 servers show in the side panel, one is connected to the localhost and the other to our Azure Server, Now we have to Migrate our database that is on the localhost to our Azure Server. 
 
@@ -115,7 +115,7 @@ First we install the SQL Server Schema Compare extension in Azure Data Studio an
 - In the dialog box click the ... button, here we make sure that the Source corresponds to our loacl databse and Target corresponds to our Azure SQL Database, and click OK,
 - We click Compare and select all the schema changes we want to apply, and click Apply.
 
-### Data Migration
+#### Data Migration
 
 SQL Schema Compare allows the synchronization of the structure of the database, this includes tables, views, procedures and other objects, note we have not migrated the data that is contained yet, to do that we have to carry out the following tasks;
 
@@ -133,11 +133,11 @@ SQL Schema Compare allows the synchronization of the structure of the database, 
 
 Once completed all the tables, along with the schema had been migrated to the VM.
 
-#### Milestone 3 - Data Backup & Restore
+## Data Backup & Restore
 
-The aim od this Milestone is to ensure that the data stored in our production database is securely storedon Azure and also creating a developer environment for the database. The production database is for storing real customer data whereas a developer databse is used for testing and experimenting, it gives developer the opportunity to test and alter the data without affecting the integrity of the live data.
+We have to ensure that the data stored in our production database is securely storedon Azure and also creating a developer environment for the database. The production database is for storing real customer data whereas a developer databse is used for testing and experimenting, it gives developer the opportunity to test and alter the data without affecting the integrity of the live data.
 
-### Create a full backup of production database
+#### Create a full backup of production database
 
 The first task is to create a full backup of the production database, to do this we have to go onto SQL Server Management Studio (SSMS), connect to our SQL Server instance and complete the following step;
 
@@ -157,7 +157,7 @@ Now we have we have backed up the file locally we can create a Blob storage back
 
 Now we have a local and cloud stored backup of AdvetureWorld2022.
 
-### Create A Developer Environment
+#### Create A Developer Environment
 
 To create a developer environment we firstly repeat the steps of provisioning a VM and downloading the necessary programs, this includes SQL Server Developer and SQL Server Management Studio.
 
@@ -170,7 +170,7 @@ Once this has been done we have to restore our database in the Developer Environ
 - Click the Add button and find the AdventureWorld2022 file in the relevant folder,
 - Click OK to restore the database.
 
-### Periodic Backups
+#### Periodic Backups
 
 We can now schedule a automatic backup, this means that SSMS will autonatically back up the database and upload the backup to the Azure blob storage. We do this in SSMS by doing the following;
 
@@ -197,3 +197,37 @@ Now we can continue with the Backup plan (Maintenance Plan).
 After refreshing the Object Explorer we can see our maintenance plan under Maintenance Plans, we right-click and select execute to run the plan. Once it has executed we can see it in the design window, here we can click on the calendar button and set a weekly automated schedule to back up.
 
 Finally, we go into our Azure storage container and we can see that a backup has been uploaded, we now have 2 files in our container.
+
+## Disaster Recovery Simulation
+
+Here we will simulate the process of losing data in our production database and the steps we can take to restore the database, each process will be documented to ensure that full data is restored without any critical loss.
+
+The first step is to go into Azure Data Studio and connect to our production Azure SQL Database, once the connetion has been established we choose a table we would like to alter, in my case I used Person.EmailAddress. Then we complete the follwoing steps;
+
+- Right-click on the connected Azure SQL Server and select new query,
+- Run the following query;
+
+    SELECT *
+    FROM Person.EmailAddress;
+
+- Here we can see the data that is outputted, if we scroll to the bottom of the table, we can see there are 19972 rows in total,
+- Now we run the follwoing query to simulate the data loss;
+
+    DELETE TOP (100)
+    FROM dbo.dim_products;
+
+- For some reason the query did not delete the top 100 but did delete 100 rows, after running it a couple of times, and then then running the SELECT query again and scrolling to the bottom, we can see there are 19172 total rows.
+
+Now we have simulated the data loss we have to restore the data by going into our Azure portal, once logged into the portal we do the following;
+
+- Navigate to the Azure SQL database dashboard, in our case it is adventureworks-az-db,
+- Click in the restore tab, this will redirect you to another page,
+- Select a restore point, we chose 23/01/2024 09:00:00 AM,
+- Create a new name for the database, ours was adventureworks-az-db-restored-1,
+- Click create, then review and create.
+
+The deployment can take a while, so we have to be patient.
+
+Once the deployment has been completed we can go back into Azure Data Studio and create a new connection, we select the restored database to connect to and when we run the SELECT query the total number of rows is 19972 once again, showing that the database has been successfully restored.
+
+Finally, we go back into Azure and delete the SQL Databse that has been corrupted.
