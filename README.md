@@ -315,4 +315,4 @@ When testing with the read-only user we cannot perform any queries, if we try to
 
 ## Conclusion
 
-Using Microsoft Azure we have now create a production and development environment for organiztions to utilize as well as migrating their databases from local to cloud based, through Azure we are giving enhanced security user management through Microsoft Entra ID as well as an automated back up service of data and a failsafe in case of emergency failure of a data centre. The project demonstartes how a organisation can benefit fro these services to create a secure, legal and seamless process of cloud migration.
+We have now created a full Microsoft Azure Database solution for an organization. We can see the UML diagram that visualises the architecture ![Here](https://github.com/macali86/azure-database-migration124/blob/main/Azure%20Project%20Diagram.png) Here we czn see all the connections and how the different technologies interact with each other to create the production and development environments for organizations. It also shows the location of the US and UK servers and what is on each server.
