@@ -1,4 +1,4 @@
-# Azure Data Migration Project
+# Azure Database Migration 
 
 The aim of this project is to architect and implement a cloud-based database system on Microsoft Azure, it is to showcase the skills and hand-on expertise that has been learnt over the Azure section of the AI Core course.
 
@@ -316,3 +316,16 @@ When testing with the read-only user we cannot perform any queries, if we try to
 ## Conclusion
 
 We have now created a full Microsoft Azure Database solution for an organization. We can see the UML diagram that visualises the architecture ![Here](https://github.com/macali86/azure-database-migration124/blob/main/Azure%20Project%20Diagram.png) Here we can see all the connections and how the different technologies interact with each other to create the production and development environments for organizations. It also shows the location of the US and UK servers and what is on each server.
+
+The full list of Azure Services and Microsoft programs that were used as are follow;
+
+- Azure SQL Servers,
+- Azure Virtual Machines,
+- Azure Storage,
+- SQL Server Developer
+- SQL Server Management Studio,
+- Azure Data Studio,
+- VSCode,
+- Schema Compare Extension,
+- Azure SQL Migration Extension,
+- Microsoft Entra ID.
