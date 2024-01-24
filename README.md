@@ -231,3 +231,34 @@ The deployment can take a while, so we have to be patient.
 Once the deployment has been completed we can go back into Azure Data Studio and create a new connection, we select the restored database to connect to and when we run the SELECT query the total number of rows is 19972 once again, showing that the database has been successfully restored.
 
 Finally, we go back into Azure and delete the SQL Databse that has been corrupted.
+
+## Geo-replicaiton and Failover
+
+Here we will configure a geo-replication for our production database, this is a disaster recovery feature that establishes a synchronized copy of the database in a secondary region. The benefits of this are that it makes our data more secure whilst also allowing continuous data availability in the event of unforeseen disruptions or downtime. We will also do a failover test simulating real world scenarios, where we have to assess the consistency of the data once it has been moved to the secondary region, we will go through the process step by step;
+
+- Navigate to the Azure SQL Database homepage in the Azure Portal,
+- Select the primary database, in our case it is adventurewors-az-db-restored-1,
+- Under Data Management in the left hand menu select Data Management,
+- Click on Create replica, here we first need to create a new SQL Server by selecting Create,
+- We named the server replication-server and set its region as US East, it is crucial we select a region far from of primary region,
+- Select Use SQL Authentication, and create the server,
+- Back in the Geo Replica window we select Review + Create.
+
+Once it has been deployed we can go to the resource page to see the details.
+
+Failover and Tailback are the processes of switiching the workload from the primary region to the secondary region and then back again. We can initiate a test failover to see if it works without disrupting the production workload, we can follow these steps to run the test;
+
+- Navigate to the Azure SQL Database dashboard and select the primary database that is located in the UK region (adventurewors-az-db-restored-1),
+- Under Data Management in the left hand menu, select Failover groups then Add group,
+- Create a name for the group in my case az-project-failover, and for server select or US East server,
+- Now navigate to the replication-server an under Failover groups we can see our az-project-failover group.
+
+If we click on the failover group we can visually see the locations of our primary and secondary servers, the primary server will have a green tick next to it. We can run a test failback by;
+
+- Clicking the failover button on the top panel, we will get a dialog box that asks if we are sure, click Yes,
+- After a few minutes the green tick will move to our secondary location and that will show as primary,
+- If we go back into Azure Data Studio and reconnect, we can see it is working just fine, this means that the failover was successful.
+
+To perform a Tailback we just click the Failover button in Azure again and we can see the primary and secondary locations switch back.
+
+
