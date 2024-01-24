@@ -261,4 +261,58 @@ If we click on the failover group we can visually see the locations of our prima
 
 To perform a Tailback we just click the Failover button in Azure again and we can see the primary and secondary locations switch back.
 
+## Configure Microsoft Entra ID for Azure SQL
 
+We can now manage and secure roles and access to our database through Microsoft Entra ID. Entra ID is a cloud-based identity management service that is specifically to help organizations manage and secure their users. With Entra ID we can offer Multi-factor authentication (MFA), which provides enhanced security. Other benfits inlcude;
+
+- Centralising management across Azure ecosystem,
+- Cross application use,
+- Simplified User Management.
+
+#### Craete Admin Account
+
+Here we will go through the process of creating Microsoft Entra ID's and assigning certain roles, firstly we create a Admin account;
+
+- Log into our Azure portal and navigate to our primary database (adventurewors-az-db-restored-1),
+- Under the seurity section we will see a tab that says Microsoft Entra, select it,
+- On the top we will see a Set Admin button, click it,
+- We click on Users and search for our user name (Moqaddas Ali) and select it, on the main dashboard, make sure to click save on the top.
+
+We can test this by going into Azure Data Studio, disconnecting from our server and then going through the connection process;
+
+- This time, instead of SQL Login we can select Microsoft Entra ID - Universal with MFA,
+- In the Account section we select Add account which will redirect us to the Azure login page, we input our login if it is not already there,
+- Click connect and we have connected with our Entra ID login.
+
+#### Create a Read Only User
+
+We can create users and assign certain roles to theses users for example we can create the following;
+
+- db_datareader: This role grants read-only access to the database, allowing users to view data but not modify or alter it,
+- db_datawriter: This role grants write access to the database, allowing users to modify data but not perform certain administrative tasks,
+- db_owner: This role provides full control over the database, including the ability to modify schema, data, and grant permissions to other users.
+
+We created a read-only user by following these steps;
+
+- Search for Entra ID in Azure portal and navigate to the homepage,
+- In the left hand menu select Users and then click +New user,
+- Create a new user, we used the name dbreader_az and selected our own password,
+- Click create user to complete the process.
+
+Now if we search for the user we can see the Overview of this user this will be vital as we need the User principal name to assign a read only role, to do this we go back into Azure Data Studio, log in as the admin previously and run the follwoing query in our Azure SQL Server;
+
+    CREATE USER [DB_Reader@yourdomain.com] FROM EXTERNAL PROVIDER;
+    ALTER ROLE db_datareader ADD MEMBER [DB_Reader@yourdomain.com];
+
+We replace the [DB_Reader@yourdomain.com] with the details that are shown in the uswr overview under User principal name, once we run this successfully we can test it by doing the following;
+
+- Right-click on the Azure SQL Server and select Edit Connection,
+- Under Account select Add Account,
+- Go through the login process but use our User principal name as the email address and the password associated with it,
+- Create a new password as prompted and then press connect.
+
+When testing with the read-only user we cannot perform any queries, if we try to run a query we are met with a error that states that the permission was denied.
+
+## Conclusion
+
+Using Microsoft Azure we have now create a production and development environment for organiztions to utilize as well as migrating their databases from local to cloud based, through Azure we are giving enhanced security user management through Microsoft Entra ID as well as an automated back up service of data and a failsafe in case of emergency failure of a data centre. The project demonstartes how a organisation can benefit fro these services to create a secure, legal and seamless process of cloud migration.
