@@ -315,4 +315,4 @@ When testing with the read-only user we cannot perform any queries, if we try to
 
 ## Conclusion
 
-We have now created a full Microsoft Azure Database solution for an organization. We can see the UML diagram that visualises the architecture ![Here](https://github.com/macali86/azure-database-migration124/blob/main/Azure%20Project%20Diagram.png) Here we czn see all the connections and how the different technologies interact with each other to create the production and development environments for organizations. It also shows the location of the US and UK servers and what is on each server.
+We have now created a full Microsoft Azure Database solution for an organization. We can see the UML diagram that visualises the architecture ![Here](https://github.com/macali86/azure-database-migration124/blob/main/Azure%20Project%20Diagram.png) Here we can see all the connections and how the different technologies interact with each other to create the production and development environments for organizations. It also shows the location of the US and UK servers and what is on each server.
